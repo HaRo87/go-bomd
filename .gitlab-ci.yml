@@ -1,34 +1,38 @@
-# This file is a template, and might need editing before it works on your project.
-image: grpc/go
+image: golang:1.19
 
 before_script:
   - export REPO_NAME=`echo $CI_PROJECT_URL|sed 's/.*:\/\///g;'`
   - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
   - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
-  - go get
+  - curl -sfL https://raw.githubusercontent.com/go-task/task/master/install-task.sh | sh -s -- -d -b /usr/local/bin
+  - curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b /usr/local/bin
+  - go mod download
 
 stages:
+    - quality
     - test
     - build
 
 format:
-    stage: test
+    stage: quality
     script:
-      - go fmt $(go list ./... | grep -v /vendor/)
-      - go vet $(go list ./... | grep -v /vendor/)
+      - task format
+
+security:
+    stage: quality
+    script:
+      - task security
     
 test:     
     stage: test
     script:
-      - go test -race $(go list ./... | grep -v /vendor/)
+      - task test
 
-compile:
+build:
     stage: build
     script:
-      - go get github.com/micro/protoc-gen-micro
-      - protoc --proto_path=$GOPATH:. --micro_out=. --go_out=. $GOPATH/src/$REPO_NAME/proto/greeter.proto
-      - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/service
+      - task build
     artifacts:
       paths:
-        - service
+        - build
