@@ -6,7 +6,7 @@ before_script:
   - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
   - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
-  - sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+  - curl -sfL https://raw.githubusercontent.com/go-task/task/master/install-task.sh | sh -s -- -d -b /usr/local/bin
   - curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b /usr/local/bin
   - go get
 
