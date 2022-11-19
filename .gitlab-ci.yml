@@ -1,4 +1,4 @@
-image: golang:1.19
+image: golang:1.19-alpine
 
 before_script:
   - export REPO_NAME=`echo $CI_PROJECT_URL|sed 's/.*:\/\///g;'`
