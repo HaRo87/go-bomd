@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"io/ioutil"
@@ -8,16 +8,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPrint(t *testing.T) {
+func TestGeneratePrint(t *testing.T) {
 	origStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	main()
+	generateItem(nil, []string{})
 
 	w.Close()
 	out, _ := ioutil.ReadAll(r)
 	os.Stdout = origStdout
 
-	assert.Equal(t, "Hello!\n", string(out))
+	assert.Equal(t, "Generating ...\n", string(out))
 }
