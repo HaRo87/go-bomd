@@ -27,6 +27,7 @@ tasks:
       - gosec -quiet ./...
 
   build:
+    deps: [clean]
     desc: Build the project
     cmds:
       - mkdir ./build

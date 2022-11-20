@@ -1,9 +1,7 @@
 package main
 
-import (
-	"fmt"
-)
+import "gitlab.com/HaRo87go-bomd/cmd"
 
 func main() {
-	fmt.Println("Hello!")
+	cmd.Execute()
 }
