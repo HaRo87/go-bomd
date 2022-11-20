@@ -13,7 +13,7 @@ func TestValidatePrint(t *testing.T) {
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	validateItem(nil, []string{})
+	validateItem("")
 
 	w.Close()
 	out, _ := ioutil.ReadAll(r)

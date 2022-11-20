@@ -13,7 +13,7 @@ func TestGeneratePrint(t *testing.T) {
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	generateItem(nil, []string{})
+	generateItem("")
 
 	w.Close()
 	out, _ := ioutil.ReadAll(r)
