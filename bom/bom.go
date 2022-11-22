@@ -14,9 +14,9 @@ type DefaultBOMProcessor struct {
 	readFile func(filename string) ([]byte, error)
 }
 
-// GetBom reads a CycloneDX BOM in json format from
+// GetBOM reads a CycloneDX BOM in json format from
 // the provided filePath and returns a BOM object.
-func (p DefaultBOMProcessor) GetBom(filePath string) (bom cdx.BOM, err error) {
+func (p DefaultBOMProcessor) GetBOM(filePath string) (bom cdx.BOM, err error) {
 	if !strings.HasSuffix(filePath, ".json") {
 		err = fmt.Errorf("Only JSON file format supported")
 		return
@@ -33,6 +33,24 @@ func (p DefaultBOMProcessor) GetBom(filePath string) (bom cdx.BOM, err error) {
 	err = decoder.Decode(&bom)
 	if err != nil {
 		return
+	}
+	return
+}
+
+// ValidateBOM checks the provided BOM for required information
+// license(s).
+func (p DefaultBOMProcessor) ValidateBOM(bom *cdx.BOM) (err error) {
+	if len(*bom.Components) < 1 {
+		return fmt.Errorf("No components in BOM")
+	}
+	for _, comp := range *bom.Components {
+		if comp.Licenses == nil {
+			err = fmt.Errorf("Component: %s without licenses detected", comp.Name)
+		} else {
+			if len(*comp.Licenses) == 0 {
+				err = fmt.Errorf("Component: %s without licenses detected", comp.Name)
+			}
+		}
 	}
 	return
 }

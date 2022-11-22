@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,25 +13,25 @@ func getDefaultBOMProcessor() DefaultBOMProcessor {
 	return builder.GetBOMProcessor()
 }
 
-func TestHasWrongSuffixReturnsError(t *testing.T) {
+func TestGetBOMHasWrongSuffixReturnsError(t *testing.T) {
 	proc := getDefaultBOMProcessor()
-	_, err := proc.GetBom("bom.xml")
+	_, err := proc.GetBOM("bom.xml")
 	assert.Error(t, err)
 	assert.Equal(t, "Only JSON file format supported", err.Error())
 }
 
-func TestFileDoesNotExistReturnsError(t *testing.T) {
+func TestGetBOMFileDoesNotExistReturnsError(t *testing.T) {
 	builder := NewDefaultBOMProcessorBuilder()
 	bomFileMock := new(MockBOMFile)
 	builder.SetStat(bomFileMock.Stat)
 	proc := builder.GetBOMProcessor()
 	bomFileMock.On("Stat", "bom.json").Return(new(MockFileInfo), fmt.Errorf("File does not exist"))
-	_, err := proc.GetBom("bom.json")
+	_, err := proc.GetBOM("bom.json")
 	assert.Error(t, err)
 	assert.Equal(t, "File does not exist", err.Error())
 }
 
-func TestCannotReadFileReturnsError(t *testing.T) {
+func TestGetBOMCannotReadFileReturnsError(t *testing.T) {
 	builder := NewDefaultBOMProcessorBuilder()
 	bomFileMock := new(MockBOMFile)
 	builder.SetStat(bomFileMock.Stat)
@@ -38,7 +39,36 @@ func TestCannotReadFileReturnsError(t *testing.T) {
 	proc := builder.GetBOMProcessor()
 	bomFileMock.On("Stat", "bom.json").Return(new(MockFileInfo), nil)
 	bomFileMock.On("ReadFile", "bom.json").Return([]byte{}, fmt.Errorf("Content could not be read"))
-	_, err := proc.GetBom("bom.json")
+	_, err := proc.GetBOM("bom.json")
 	assert.Error(t, err)
 	assert.Equal(t, "Content could not be read", err.Error())
+}
+
+func TestValidateBOMNoComponentsReturnsError(t *testing.T) {
+	bom := cdx.NewBOM()
+	components := []cdx.Component{}
+	bom.Components = &components
+	proc := getDefaultBOMProcessor()
+	err := proc.ValidateBOM(bom)
+	assert.Error(t, err)
+	assert.Equal(t, "No components in BOM", err.Error())
+}
+
+func TestValidateBOMNoLicenseReturnsError(t *testing.T) {
+	bom := cdx.NewBOM()
+	components := []cdx.Component{
+		{
+			BOMRef:     "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+			Type:       cdx.ComponentTypeLibrary,
+			Author:     "CycloneDX",
+			Name:       "cyclonedx-go",
+			Version:    "v0.3.0",
+			PackageURL: "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+		},
+	}
+	bom.Components = &components
+	proc := getDefaultBOMProcessor()
+	err := proc.ValidateBOM(bom)
+	assert.Error(t, err)
+	assert.Equal(t, "Component: cyclonedx-go without licenses detected", err.Error())
 }
