@@ -44,8 +44,18 @@ func TestGetBOMCannotReadFileReturnsError(t *testing.T) {
 	assert.Equal(t, "Content could not be read", err.Error())
 }
 
+func TestValidateBOMNoMetaDataReturnsError(t *testing.T) {
+	bom := cdx.NewBOM()
+	proc := getDefaultBOMProcessor()
+	err := proc.ValidateBOM(bom)
+	assert.Error(t, err)
+	assert.Equal(t, "BOM does not contain any meta data", err.Error())
+}
+
 func TestValidateBOMNoComponentsReturnsError(t *testing.T) {
 	bom := cdx.NewBOM()
+	meta := cdx.Metadata{}
+	bom.Metadata = &meta
 	components := []cdx.Component{}
 	bom.Components = &components
 	proc := getDefaultBOMProcessor()
@@ -68,7 +78,7 @@ func TestValidateBOMNoLicenseReturnsError(t *testing.T) {
 	}
 	bom.Components = &components
 	proc := getDefaultBOMProcessor()
-	err := proc.ValidateBOM(bom)
+	err := proc.ValidateComponentLicenses(bom)
 	assert.Error(t, err)
 	assert.Equal(t, "Component: cyclonedx-go without licenses detected", err.Error())
 }
