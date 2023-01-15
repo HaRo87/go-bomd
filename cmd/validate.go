@@ -3,11 +3,37 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kpango/glg"
 	"github.com/spf13/cobra"
+
+	gbom "gitlab.com/HaRo87go-bomd/bom"
 )
 
 func validateItem(config string) {
 	fmt.Println("Validating ...")
+}
+
+func validateBOM(bomFile string, validateLicenses bool) (err error) {
+	builder := gbom.NewDefaultBOMProcessorBuilder()
+	processor := builder.GetBOMProcessor()
+	glg.Debugf("Trying to read BOM: %s", bomFile)
+	bom, err := processor.GetBOM(bomFile)
+	if err != nil {
+		return
+	}
+	glg.Debug("Trying to validate BOM")
+	err = processor.ValidateBOM(&bom)
+	if err != nil {
+		return
+	}
+	if validateLicenses {
+		glg.Debug("Trying to validate BOM component license information")
+		err = processor.ValidateComponentLicenses(&bom)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
 // validateCmd represents the validate command
@@ -35,8 +61,14 @@ var validateBomCmd = &cobra.Command{
 	Short: "Validate a specified BOM",
 	Long: `Validate (bomd validate bom) will support with checking the integrity
 	of the specified BOM.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		validateItem(args[0])
+	RunE: func(cmd *cobra.Command, args []string) error {
+		glg.Infof("Validating BOM: %s", file)
+		err := validateBOM(file, false)
+		if err != nil {
+			glg.Error("😱 something went wrong")
+			return err
+		}
+		return nil
 	},
 }
 

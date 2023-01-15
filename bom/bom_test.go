@@ -52,6 +52,17 @@ func TestValidateBOMNoMetaDataReturnsError(t *testing.T) {
 	assert.Equal(t, "BOM does not contain any meta data", err.Error())
 }
 
+func TestValidateBOMNilComponentsReturnsError(t *testing.T) {
+	bom := cdx.NewBOM()
+	meta := cdx.Metadata{}
+	bom.Metadata = &meta
+	bom.Components = nil
+	proc := getDefaultBOMProcessor()
+	err := proc.ValidateBOM(bom)
+	assert.Error(t, err)
+	assert.Equal(t, "BOM does not contain any components", err.Error())
+}
+
 func TestValidateBOMNoComponentsReturnsError(t *testing.T) {
 	bom := cdx.NewBOM()
 	meta := cdx.Metadata{}
@@ -64,7 +75,7 @@ func TestValidateBOMNoComponentsReturnsError(t *testing.T) {
 	assert.Equal(t, "No components in BOM", err.Error())
 }
 
-func TestValidateBOMNoLicenseReturnsError(t *testing.T) {
+func TestValidateComponentLicensesNoLicenseReturnsError(t *testing.T) {
 	bom := cdx.NewBOM()
 	components := []cdx.Component{
 		{
@@ -81,4 +92,44 @@ func TestValidateBOMNoLicenseReturnsError(t *testing.T) {
 	err := proc.ValidateComponentLicenses(bom)
 	assert.Error(t, err)
 	assert.Equal(t, "Component: cyclonedx-go without licenses detected", err.Error())
+}
+
+func TestValidateComponentLicensesEmptyLicenseReturnsError(t *testing.T) {
+	bom := cdx.NewBOM()
+	components := []cdx.Component{
+		{
+			BOMRef:     "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+			Type:       cdx.ComponentTypeLibrary,
+			Author:     "CycloneDX",
+			Name:       "cyclonedx-go",
+			Version:    "v0.3.0",
+			PackageURL: "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+			//Licenses: &cdx.Licenses{cdx.LicenseChoice{License: &cdx.License{ID: ""}}},
+			Licenses: &cdx.Licenses{},
+		},
+	}
+	bom.Components = &components
+	proc := getDefaultBOMProcessor()
+	err := proc.ValidateComponentLicenses(bom)
+	assert.Error(t, err)
+	assert.Equal(t, "Component: cyclonedx-go without licenses detected", err.Error())
+}
+
+func TestValidateComponentLicensesSuccess(t *testing.T) {
+	bom := cdx.NewBOM()
+	components := []cdx.Component{
+		{
+			BOMRef:     "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+			Type:       cdx.ComponentTypeLibrary,
+			Author:     "CycloneDX",
+			Name:       "cyclonedx-go",
+			Version:    "v0.3.0",
+			PackageURL: "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+			Licenses:   &cdx.Licenses{cdx.LicenseChoice{License: &cdx.License{ID: "MIT", Name: "MIT License"}}},
+		},
+	}
+	bom.Components = &components
+	proc := getDefaultBOMProcessor()
+	err := proc.ValidateComponentLicenses(bom)
+	assert.NoError(t, err)
 }
