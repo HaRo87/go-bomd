@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/kpango/glg"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	gbom "gitlab.com/HaRo87go-bomd/bom"
@@ -16,18 +16,18 @@ func validateItem(config string) {
 func validateBOM(bomFile string, validateLicenses bool) (err error) {
 	builder := gbom.NewDefaultBOMProcessorBuilder()
 	processor := builder.GetBOMProcessor()
-	_ = glg.Debugf("Trying to read BOM: %s", bomFile)
+	logrus.Debugf("Trying to read BOM: %s", bomFile)
 	bom, err := processor.GetBOM(bomFile)
 	if err != nil {
 		return
 	}
-	_ = glg.Debug("Trying to validate BOM")
+	logrus.Debugf("Trying to validate BOM")
 	err = processor.ValidateBOM(&bom)
 	if err != nil {
 		return
 	}
 	if validateLicenses {
-		_ = glg.Debug("Trying to validate BOM component license information")
+		logrus.Debugf("Trying to validate BOM component license information")
 		err = processor.ValidateComponentLicenses(&bom)
 		if err != nil {
 			return
@@ -62,10 +62,10 @@ var validateBomCmd = &cobra.Command{
 	Long: `Validate (bomd validate bom) will support with checking the integrity
 	of the specified BOM.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_ = glg.Infof("Validating BOM: %s", file)
+		logrus.Infof("Validating BOM: %s", file)
 		err := validateBOM(file, false)
 		if err != nil {
-			_ = glg.Error("😱 something went wrong")
+			logrus.Error("😱 something went wrong")
 		}
 		return err
 	},
@@ -87,14 +87,4 @@ func init() {
 	validateCmd.AddCommand(validateConfigCmd)
 	validateCmd.AddCommand(validateTemplateCmd)
 	rootCmd.AddCommand(validateCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// validateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// validateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
