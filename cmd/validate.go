@@ -66,6 +66,8 @@ var validateBomCmd = &cobra.Command{
 		err := validateBOM(file, false)
 		if err != nil {
 			logrus.Error("😱 something went wrong")
+		} else {
+			logrus.Info("😎 everything seems to be fine")
 		}
 		return err
 	},
