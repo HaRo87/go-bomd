@@ -9,6 +9,8 @@ import (
 	gbom "gitlab.com/HaRo87go-bomd/bom"
 )
 
+var licenseCheck bool
+
 func validateItem(config string) {
 	fmt.Println("Validating ...")
 }
@@ -63,7 +65,7 @@ var validateBomCmd = &cobra.Command{
 	of the specified BOM.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logrus.Infof("Validating BOM: %s", file)
-		err := validateBOM(file, false)
+		err := validateBOM(file, licenseCheck)
 		if err != nil {
 			logrus.Error("😱 something went wrong")
 		} else {
@@ -85,6 +87,7 @@ var validateTemplateCmd = &cobra.Command{
 }
 
 func init() {
+	validateBomCmd.Flags().BoolVarP(&licenseCheck, "license-check", "l", false, "check if license info is present (default false)")
 	validateCmd.AddCommand(validateBomCmd)
 	validateCmd.AddCommand(validateConfigCmd)
 	validateCmd.AddCommand(validateTemplateCmd)
