@@ -89,6 +89,13 @@ func (c *bomLicenseCheck) execute(bom *cdx.BOM) (err error) {
 			if len(*comp.Licenses) == 0 {
 				err = fmt.Errorf("Component: %s without licenses detected", comp.Name)
 				return
+			} else {
+				for _, license := range *comp.Licenses {
+					if len(license.License.ID) == 0 {
+						err = fmt.Errorf("Component: %s without licenses detected", comp.Name)
+						return
+					}
+				}
 			}
 		}
 	}

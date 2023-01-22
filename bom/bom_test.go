@@ -123,6 +123,26 @@ func TestValidateComponentLicensesEmptyLicenseReturnsError(t *testing.T) {
 	assert.Equal(t, "Component: cyclonedx-go without licenses detected", err.Error())
 }
 
+func TestValidateComponentLicensesEmptyLicenseIDReturnsError(t *testing.T) {
+	bom := cdx.NewBOM()
+	components := []cdx.Component{
+		{
+			BOMRef:     "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+			Type:       cdx.ComponentTypeLibrary,
+			Author:     "CycloneDX",
+			Name:       "cyclonedx-go",
+			Version:    "v0.3.0",
+			PackageURL: "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+			Licenses:   &cdx.Licenses{cdx.LicenseChoice{License: &cdx.License{ID: ""}}},
+		},
+	}
+	bom.Components = &components
+	proc := getDefaultBOMProcessor()
+	err := proc.ValidateComponentLicenses(bom)
+	assert.Error(t, err)
+	assert.Equal(t, "Component: cyclonedx-go without licenses detected", err.Error())
+}
+
 func TestValidateComponentLicensesSuccess(t *testing.T) {
 	bom := cdx.NewBOM()
 	components := []cdx.Component{

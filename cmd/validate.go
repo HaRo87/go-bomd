@@ -15,22 +15,20 @@ func validateItem(config string) {
 	fmt.Println("Validating ...")
 }
 
-func validateBOM(bomFile string, validateLicenses bool) (err error) {
-	builder := gbom.NewDefaultBOMProcessorBuilder()
-	processor := builder.GetBOMProcessor()
+func validateBOM(bomFile string, validateLicenses bool, bomProc gbom.BOMProcessor) (err error) {
 	logrus.Debugf("Trying to read BOM: %s", bomFile)
-	bom, err := processor.GetBOM(bomFile)
+	bom, err := bomProc.GetBOM(bomFile)
 	if err != nil {
 		return
 	}
 	logrus.Debugf("Trying to validate BOM")
-	err = processor.ValidateBOM(&bom)
+	err = bomProc.ValidateBOM(&bom)
 	if err != nil {
 		return
 	}
 	if validateLicenses {
 		logrus.Debugf("Trying to validate BOM component license information")
-		err = processor.ValidateComponentLicenses(&bom)
+		err = bomProc.ValidateComponentLicenses(&bom)
 		if err != nil {
 			return
 		}
@@ -64,8 +62,10 @@ var validateBomCmd = &cobra.Command{
 	Long: `Validate (bomd validate bom) will support with checking the integrity
 	of the specified BOM.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		builder := gbom.NewDefaultBOMProcessorBuilder()
+		processor := builder.GetBOMProcessor()
 		logrus.Infof("Validating BOM: %s", file)
-		err := validateBOM(file, licenseCheck)
+		err := validateBOM(file, licenseCheck, processor)
 		if err != nil {
 			logrus.Error("😱 something went wrong")
 		} else {
