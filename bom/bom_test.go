@@ -44,6 +44,14 @@ func TestGetBOMCannotReadFileReturnsError(t *testing.T) {
 	assert.Equal(t, "Content could not be read", err.Error())
 }
 
+func TestGetBOMReadExaqmpleFileReturnsBOM(t *testing.T) {
+	builder := NewDefaultBOMProcessorBuilder()
+	proc := builder.GetBOMProcessor()
+	bom, err := proc.GetBOM("../examples/boms/go-bomd-bom.json")
+	assert.NoError(t, err)
+	assert.Equal(t, "gitlab.com/HaRo87go-bomd", bom.Metadata.Component.Name)
+}
+
 func TestValidateBOMNoMetaDataReturnsError(t *testing.T) {
 	bom := cdx.NewBOM()
 	proc := getDefaultBOMProcessor()
