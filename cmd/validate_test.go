@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 
@@ -16,7 +16,7 @@ func TestValidatePrint(t *testing.T) {
 	validateItem("")
 
 	w.Close()
-	out, _ := ioutil.ReadAll(r)
+	out, _ := io.ReadAll(r)
 	os.Stdout = origStdout
 
 	assert.Equal(t, "Validating ...\n", string(out))

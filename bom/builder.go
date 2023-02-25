@@ -2,7 +2,6 @@ package bom
 
 import (
 	"io/fs"
-	"io/ioutil"
 	"os"
 )
 
@@ -39,7 +38,7 @@ func (b *DefaultBOMProcessorBuilder) GetBOMProcessor() DefaultBOMProcessor {
 		b.stat = os.Stat
 	}
 	if b.readFile == nil {
-		b.readFile = ioutil.ReadFile
+		b.readFile = os.ReadFile
 	}
 	return DefaultBOMProcessor{stat: b.stat, readFile: b.readFile}
 }
