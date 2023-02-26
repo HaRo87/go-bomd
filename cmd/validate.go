@@ -7,28 +7,26 @@ import (
 	"github.com/spf13/cobra"
 
 	gbom "gitlab.com/HaRo87go-bomd/bom"
+
+	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
 var licenseCheck bool
+var listMissingLicenses bool
 
 func validateItem(config string) {
 	fmt.Println("Validating ...")
 }
 
-func validateBOM(bomFile string, validateLicenses bool, bomProc gbom.BOMProcessor) (err error) {
-	logrus.Debugf("Trying to read BOM: %s", bomFile)
-	bom, err := bomProc.GetBOM(bomFile)
-	if err != nil {
-		return
-	}
+func validateBOM(bom *cdx.BOM, validateLicenses bool, bomProc gbom.BOMProcessor) (err error) {
 	logrus.Debugf("Trying to validate BOM")
-	err = bomProc.ValidateBOM(&bom)
+	err = bomProc.ValidateBOM(bom)
 	if err != nil {
 		return
 	}
 	if validateLicenses {
 		logrus.Debugf("Trying to validate BOM component license information")
-		err = bomProc.ValidateComponentLicenses(&bom)
+		err = bomProc.ValidateComponentLicenses(bom)
 		if err != nil {
 			return
 		}
@@ -64,12 +62,25 @@ var validateBomCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		builder := gbom.NewDefaultBOMProcessorBuilder()
 		processor := builder.GetBOMProcessor()
+		logrus.Debugf("Trying to read BOM: %s", file)
+		bom, err := processor.GetBOM(file)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
 		logrus.Infof("Validating BOM: %s", file)
-		err := validateBOM(file, licenseCheck, processor)
+		err = validateBOM(&bom, licenseCheck, processor)
 		if err != nil {
 			logrus.Error("😱 something went wrong")
 		} else {
 			logrus.Info("😎 everything seems to be fine")
+		}
+		if listMissingLicenses {
+			logrus.SetLevel(logrus.WarnLevel)
+			components, _ := processor.GetComponentsWithEmptyLicenseIDs(&bom)
+			for _, component := range components {
+				logrus.Warnf("🤔 component: %s is missing license information", component)
+			}
 		}
 		return err
 	},
@@ -88,6 +99,7 @@ var validateTemplateCmd = &cobra.Command{
 
 func init() {
 	validateBomCmd.Flags().BoolVarP(&licenseCheck, "license-check", "l", false, "check if license info is present (default false)")
+	validateBomCmd.Flags().BoolVar(&listMissingLicenses, "list-missing", false, "list all components missing license info (default false)")
 	validateCmd.AddCommand(validateBomCmd)
 	validateCmd.AddCommand(validateConfigCmd)
 	validateCmd.AddCommand(validateTemplateCmd)

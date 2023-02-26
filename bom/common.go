@@ -12,6 +12,7 @@ type BOMProcessor interface {
 	GetBOM(filePath string) (bom cdx.BOM, err error)
 	ValidateBOM(bom *cdx.BOM) (err error)
 	ValidateComponentLicenses(bom *cdx.BOM) (err error)
+	GetComponentsWithEmptyLicenseIDs(bom *cdx.BOM) (comps []string, err error)
 }
 
 // BOMProcessorBuilder represents the interface a builder,

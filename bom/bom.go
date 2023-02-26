@@ -81,23 +81,9 @@ type bomLicenseCheck struct {
 // execute checks whether the provided BOM contains any
 // components without proper license information or not.
 func (c *bomLicenseCheck) execute(bom *cdx.BOM) (err error) {
-	for _, comp := range *bom.Components {
-		if comp.Licenses == nil {
-			err = fmt.Errorf("Component: %s without licenses detected", comp.Name)
-			return
-		} else {
-			if len(*comp.Licenses) == 0 {
-				err = fmt.Errorf("Component: %s without licenses detected", comp.Name)
-				return
-			} else {
-				for _, license := range *comp.Licenses {
-					if len(license.License.ID) == 0 {
-						err = fmt.Errorf("Component: %s without licenses detected", comp.Name)
-						return
-					}
-				}
-			}
-		}
+	_, err = getComponentsWithEmptyLicenseIDs(bom)
+	if err != nil {
+		return
 	}
 	if c.next != nil {
 		err = c.next.execute(bom)
@@ -150,5 +136,39 @@ func (p DefaultBOMProcessor) ValidateComponentLicenses(bom *cdx.BOM) (err error)
 	comp := &bomComponentCheck{}
 	comp.setNext(lic)
 	err = comp.execute(bom)
+	return
+}
+
+// GetComponentsWithEmptyLicenseIDs checks all components in
+// the provided BOM contain license information and returns an
+// error if that is not the case and a list of all components
+// which lack proper license information.
+func (p DefaultBOMProcessor) GetComponentsWithEmptyLicenseIDs(bom *cdx.BOM) (comps []string, err error) {
+	return getComponentsWithEmptyLicenseIDs(bom)
+}
+
+func getComponentsWithEmptyLicenseIDs(bom *cdx.BOM) (comps []string, err error) {
+	if bom.Components == nil {
+		err = fmt.Errorf("No components in BOM")
+		return
+	}
+	for _, comp := range *bom.Components {
+		if comp.Licenses == nil {
+			err = fmt.Errorf("Component(s) without licenses detected")
+			comps = append(comps, comp.Name)
+		} else {
+			if len(*comp.Licenses) == 0 {
+				err = fmt.Errorf("Component(s) without licenses detected")
+				comps = append(comps, comp.Name)
+			} else {
+				for _, license := range *comp.Licenses {
+					if len(license.License.ID) == 0 {
+						err = fmt.Errorf("Component(s) without licenses detected")
+						comps = append(comps, comp.Name)
+					}
+				}
+			}
+		}
+	}
 	return
 }

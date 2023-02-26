@@ -99,7 +99,7 @@ func TestValidateComponentLicensesNoLicenseReturnsError(t *testing.T) {
 	proc := getDefaultBOMProcessor()
 	err := proc.ValidateComponentLicenses(bom)
 	assert.Error(t, err)
-	assert.Equal(t, "Component: cyclonedx-go without licenses detected", err.Error())
+	assert.Equal(t, "Component(s) without licenses detected", err.Error())
 }
 
 func TestValidateComponentLicensesEmptyLicenseReturnsError(t *testing.T) {
@@ -112,15 +112,14 @@ func TestValidateComponentLicensesEmptyLicenseReturnsError(t *testing.T) {
 			Name:       "cyclonedx-go",
 			Version:    "v0.3.0",
 			PackageURL: "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
-			//Licenses: &cdx.Licenses{cdx.LicenseChoice{License: &cdx.License{ID: ""}}},
-			Licenses: &cdx.Licenses{},
+			Licenses:   &cdx.Licenses{},
 		},
 	}
 	bom.Components = &components
 	proc := getDefaultBOMProcessor()
 	err := proc.ValidateComponentLicenses(bom)
 	assert.Error(t, err)
-	assert.Equal(t, "Component: cyclonedx-go without licenses detected", err.Error())
+	assert.Equal(t, "Component(s) without licenses detected", err.Error())
 }
 
 func TestValidateComponentLicensesEmptyLicenseIDReturnsError(t *testing.T) {
@@ -140,7 +139,7 @@ func TestValidateComponentLicensesEmptyLicenseIDReturnsError(t *testing.T) {
 	proc := getDefaultBOMProcessor()
 	err := proc.ValidateComponentLicenses(bom)
 	assert.Error(t, err)
-	assert.Equal(t, "Component: cyclonedx-go without licenses detected", err.Error())
+	assert.Equal(t, "Component(s) without licenses detected", err.Error())
 }
 
 func TestValidateComponentLicensesSuccess(t *testing.T) {
@@ -160,4 +159,62 @@ func TestValidateComponentLicensesSuccess(t *testing.T) {
 	proc := getDefaultBOMProcessor()
 	err := proc.ValidateComponentLicenses(bom)
 	assert.NoError(t, err)
+}
+
+func TestGetComponentsWithEmptyLicenseIDsNoComponentsReturnsError(t *testing.T) {
+	bom := cdx.NewBOM()
+	meta := cdx.Metadata{}
+	bom.Metadata = &meta
+	bom.Components = nil
+	proc := getDefaultBOMProcessor()
+	_, err := proc.GetComponentsWithEmptyLicenseIDs(bom)
+	assert.Error(t, err)
+	assert.Equal(t, "No components in BOM", err.Error())
+}
+
+func TestGetComponentsWithEmptyLicenseIDsMultipleEmptyLicenseIDsReturnsError(t *testing.T) {
+	bom := cdx.NewBOM()
+	components := []cdx.Component{
+		{
+			BOMRef:     "pkg:golang/github.com/org/package-one@v0.1.0",
+			Type:       cdx.ComponentTypeLibrary,
+			Author:     "org",
+			Name:       "package-one",
+			Version:    "v0.1.0",
+			PackageURL: "pkg:golang/github.com/org/package-one@v0.1.0",
+			Licenses:   &cdx.Licenses{cdx.LicenseChoice{License: &cdx.License{ID: ""}}},
+		},
+		{
+			BOMRef:     "pkg:golang/github.com/org/package-two@v0.1.1",
+			Type:       cdx.ComponentTypeLibrary,
+			Author:     "org",
+			Name:       "package-two",
+			Version:    "v0.1.1",
+			PackageURL: "pkg:golang/github.com/org/package-two@v0.1.0",
+		},
+		{
+			BOMRef:     "pkg:golang/github.com/org/package-three@v0.1.0",
+			Type:       cdx.ComponentTypeLibrary,
+			Author:     "org",
+			Name:       "package-three",
+			Version:    "v0.1.0",
+			PackageURL: "pkg:golang/github.com/org/package-three@v0.1.0",
+			Licenses:   &cdx.Licenses{},
+		},
+		{
+			BOMRef:     "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+			Type:       cdx.ComponentTypeLibrary,
+			Author:     "CycloneDX",
+			Name:       "cyclonedx-go",
+			Version:    "v0.3.0",
+			PackageURL: "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.3.0",
+			Licenses:   &cdx.Licenses{cdx.LicenseChoice{License: &cdx.License{ID: "MIT", Name: "MIT License"}}},
+		},
+	}
+	bom.Components = &components
+	proc := getDefaultBOMProcessor()
+	comps, err := proc.GetComponentsWithEmptyLicenseIDs(bom)
+	assert.Error(t, err)
+	assert.Equal(t, "Component(s) without licenses detected", err.Error())
+	assert.Equal(t, []string{"package-one", "package-two", "package-three"}, comps)
 }
