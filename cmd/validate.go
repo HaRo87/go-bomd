@@ -19,7 +19,6 @@ func validateItem(config string) {
 }
 
 func validateBOM(bom *cdx.BOM, validateLicenses bool, bomProc gbom.BOMProcessor) (err error) {
-	logrus.Debugf("Trying to validate BOM")
 	err = bomProc.ValidateBOM(bom)
 	if err != nil {
 		return
@@ -98,8 +97,8 @@ var validateTemplateCmd = &cobra.Command{
 }
 
 func init() {
-	validateBomCmd.Flags().BoolVarP(&licenseCheck, "license-check", "l", false, "check if license info is present (default false)")
-	validateBomCmd.Flags().BoolVar(&listMissingLicenses, "list-missing", false, "list all components missing license info (default false)")
+	validateBomCmd.Flags().BoolVarP(&licenseCheck, "licenseCheck", "l", false, "check if license info is present (default false)")
+	validateBomCmd.Flags().BoolVar(&listMissingLicenses, "listMissing", false, "list all components missing license info (default false)")
 	validateCmd.AddCommand(validateBomCmd)
 	validateCmd.AddCommand(validateConfigCmd)
 	validateCmd.AddCommand(validateTemplateCmd)
