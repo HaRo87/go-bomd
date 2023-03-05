@@ -3,11 +3,34 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	gbom "gitlab.com/HaRo87go-bomd/bom"
+
+	cdx "github.com/CycloneDX/cyclonedx-go"
 )
+
+var licenseCheck bool
+var listMissingLicenses bool
 
 func validateItem(config string) {
 	fmt.Println("Validating ...")
+}
+
+func validateBOM(bom *cdx.BOM, validateLicenses bool, bomProc gbom.BOMProcessor) (err error) {
+	err = bomProc.ValidateBOM(bom)
+	if err != nil {
+		return
+	}
+	if validateLicenses {
+		logrus.Debugf("Trying to validate BOM component license information")
+		err = bomProc.ValidateComponentLicenses(bom)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
 // validateCmd represents the validate command
@@ -35,8 +58,30 @@ var validateBomCmd = &cobra.Command{
 	Short: "Validate a specified BOM",
 	Long: `Validate (bomd validate bom) will support with checking the integrity
 	of the specified BOM.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		validateItem(args[0])
+	RunE: func(cmd *cobra.Command, args []string) error {
+		builder := gbom.NewDefaultBOMProcessorBuilder()
+		processor := builder.GetBOMProcessor()
+		logrus.Debugf("Trying to read BOM: %s", file)
+		bom, err := processor.GetBOM(file)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Infof("Validating BOM: %s", file)
+		err = validateBOM(&bom, licenseCheck, processor)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+		} else {
+			logrus.Info("😎 everything seems to be fine")
+		}
+		if listMissingLicenses {
+			logrus.SetLevel(logrus.WarnLevel)
+			components, _ := processor.GetComponentsWithEmptyLicenseIDs(&bom)
+			for _, component := range components {
+				logrus.Warnf("🤔 component: %s is missing license information", component)
+			}
+		}
+		return err
 	},
 }
 
@@ -52,18 +97,10 @@ var validateTemplateCmd = &cobra.Command{
 }
 
 func init() {
+	validateBomCmd.Flags().BoolVarP(&licenseCheck, "licenseCheck", "l", false, "check if license info is present (default false)")
+	validateBomCmd.Flags().BoolVar(&listMissingLicenses, "listMissing", false, "list all components missing license info (default false)")
 	validateCmd.AddCommand(validateBomCmd)
 	validateCmd.AddCommand(validateConfigCmd)
 	validateCmd.AddCommand(validateTemplateCmd)
 	rootCmd.AddCommand(validateCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// validateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// validateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

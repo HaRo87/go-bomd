@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 
@@ -16,7 +16,7 @@ func TestGeneratePrint(t *testing.T) {
 	generateItem("")
 
 	w.Close()
-	out, _ := ioutil.ReadAll(r)
+	out, _ := io.ReadAll(r)
 	os.Stdout = origStdout
 
 	assert.Equal(t, "Generating ...\n", string(out))
