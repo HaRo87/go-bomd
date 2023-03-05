@@ -33,7 +33,7 @@ func TestValidateBomCmdNoLicenseCheckSuccess(t *testing.T) {
 	// Weird workaround due to the fact that flags do not seem to
 	// be automatically reset during test execution. More details
 	// can be found here: https://github.com/spf13/cobra/issues/1419
-	validateBomCmd.Flags().Lookup("licenseCheck").Value.Set("false")
+	assert.NoError(t, validateBomCmd.Flags().Lookup("licenseCheck").Value.Set("false"))
 	err := executeCommand(rootCmd, "validate", "bom", "-vvv", "-f", "../examples/boms/go-bomd-bom.json")
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(hook.Entries))
@@ -48,7 +48,7 @@ func TestValidateBomCmdNoLicenseCheckButListMissingLicensesSuccess(t *testing.T)
 	// Weird workaround due to the fact that flags do not seem to
 	// be automatically reset during test execution. More details
 	// can be found here: https://github.com/spf13/cobra/issues/1419
-	validateBomCmd.Flags().Lookup("licenseCheck").Value.Set("false")
+	assert.NoError(t, validateBomCmd.Flags().Lookup("licenseCheck").Value.Set("false"))
 	err := executeCommand(rootCmd, "validate", "bom", "-vvv", "--listMissing", "-f", "../examples/boms/go-bomd-bom.json")
 	assert.NoError(t, err)
 	assert.Equal(t, 14, len(hook.Entries))
