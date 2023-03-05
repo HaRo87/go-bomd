@@ -6,6 +6,7 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/stretchr/testify/assert"
+	gmock "gitlab.com/HaRo87go-bomd/mock"
 )
 
 func getDefaultBOMProcessor() DefaultBOMProcessor {
@@ -22,10 +23,10 @@ func TestGetBOMHasWrongSuffixReturnsError(t *testing.T) {
 
 func TestGetBOMFileDoesNotExistReturnsError(t *testing.T) {
 	builder := NewDefaultBOMProcessorBuilder()
-	bomFileMock := new(MockBOMFile)
+	bomFileMock := new(gmock.MockFile)
 	builder.SetStat(bomFileMock.Stat)
 	proc := builder.GetBOMProcessor()
-	bomFileMock.On("Stat", "bom.json").Return(new(MockFileInfo), fmt.Errorf("File does not exist"))
+	bomFileMock.On("Stat", "bom.json").Return(new(gmock.MockFileInfo), fmt.Errorf("File does not exist"))
 	_, err := proc.GetBOM("bom.json")
 	assert.Error(t, err)
 	assert.Equal(t, "File does not exist", err.Error())
@@ -33,11 +34,11 @@ func TestGetBOMFileDoesNotExistReturnsError(t *testing.T) {
 
 func TestGetBOMCannotReadFileReturnsError(t *testing.T) {
 	builder := NewDefaultBOMProcessorBuilder()
-	bomFileMock := new(MockBOMFile)
+	bomFileMock := new(gmock.MockFile)
 	builder.SetStat(bomFileMock.Stat)
 	builder.SetReadFile(bomFileMock.ReadFile)
 	proc := builder.GetBOMProcessor()
-	bomFileMock.On("Stat", "bom.json").Return(new(MockFileInfo), nil)
+	bomFileMock.On("Stat", "bom.json").Return(new(gmock.MockFileInfo), nil)
 	bomFileMock.On("ReadFile", "bom.json").Return([]byte{}, fmt.Errorf("Content could not be read"))
 	_, err := proc.GetBOM("bom.json")
 	assert.Error(t, err)
