@@ -1,10 +1,10 @@
 package template
 
 import (
-	"io/fs"
-	"os"
+	gTemplate "text/template"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/spf13/afero"
 )
 
 // TemplateInfo represents all information
@@ -19,7 +19,8 @@ type TemplateInfo struct {
 // functions a template processor must implement.
 type TemplateProcessor interface {
 	Validate(template TemplateInfo) (err error)
-	Generate(template TemplateInfo) (err error)
+	Execute(template TemplateInfo) (err error)
+	Generate(filePath string) (err error)
 }
 
 // TemplateProcessorBuilder represents the interface a builder,
@@ -27,7 +28,7 @@ type TemplateProcessor interface {
 // https://refactoring.guru/design-patterns/builder
 // must implement.
 type TemplateProcessorBuilder interface {
-	SetStat(func(name string) (fs.FileInfo, error))
-	SetCreate(func(name string) (*os.File, error))
+	SetFileSystem(afero.Fs)
+	SetParseFiles(func(filenames ...string) (*gTemplate.Template, error))
 	GetTemplateProcessor() DefaultTemplateProcessor
 }
