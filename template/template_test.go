@@ -30,9 +30,10 @@ func TestValidateParseFilesIssueReturnsError(t *testing.T) {
 	builder.SetFileSystem(fileMock)
 	builder.SetParseFiles(templateMock.ParseFiles)
 	proc := builder.GetTemplateProcessor()
-	fileMock.Create("some.tmpl")
+	_, err := fileMock.Create("some.tmpl")
+	assert.NoError(t, err)
 	templateMock.On("ParseFiles", []string{"some.tmpl"}).Return(new(gtemplate.Template), fmt.Errorf("Some error"))
-	err := proc.Validate(TemplateInfo{InputFilePath: "some.tmpl"})
+	err = proc.Validate(TemplateInfo{InputFilePath: "some.tmpl"})
 	assert.Error(t, err)
 	assert.Equal(t, "Some error", err.Error())
 }
