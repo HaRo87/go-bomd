@@ -84,8 +84,10 @@ func TestExecuteSuccess(t *testing.T) {
 	file, err := fileMock.Create(dirPath + "/some.tmpl")
 	assert.NoError(t, err)
 	data := "This bom contains {{ range .Components }} {{ .Name }} {{ end }}  "
-	file.Write([]byte(data))
-	file.Close()
+	_, err = file.Write([]byte(data))
+	assert.NoError(t, err)
+	err = file.Close()
+	assert.NoError(t, err)
 	bom := cdx.NewBOM()
 	components := []cdx.Component{
 		{
