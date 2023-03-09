@@ -110,3 +110,27 @@ func TestExecuteSuccess(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, string(result), "cyclonedx-go")
 }
+
+func TestGenerateFsCreateIssueReturnsError(t *testing.T) {
+	builder := NewDefaultTemplateProcessorBuilder()
+	fileMock := afero.NewReadOnlyFs(afero.NewMemMapFs())
+	builder.SetFileSystem(fileMock)
+	proc := builder.GetTemplateProcessor()
+	err := proc.Generate("some.md")
+	assert.Error(t, err)
+	assert.Equal(t, "operation not permitted", err.Error())
+}
+
+func TestGenerateSuccess(t *testing.T) {
+	builder := NewDefaultTemplateProcessorBuilder()
+	fileMock := afero.NewMemMapFs()
+	builder.SetFileSystem(fileMock)
+	proc := builder.GetTemplateProcessor()
+	err := proc.Generate("some.md")
+	assert.NoError(t, err)
+	file, err := fileMock.Open("some.md")
+	assert.NoError(t, err)
+	result, err := afero.ReadAll(file)
+	assert.NoError(t, err)
+	assert.Contains(t, string(result), "# SBOM for {{ .Metadata.Component.Name }}")
+}

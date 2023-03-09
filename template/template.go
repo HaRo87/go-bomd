@@ -1,6 +1,7 @@
 package template
 
 import (
+	"fmt"
 	gTemplate "text/template"
 
 	"github.com/spf13/afero"
@@ -46,8 +47,15 @@ func (p DefaultTemplateProcessor) Generate(filePath string) (err error) {
 	if err != nil {
 		return
 	}
-	if file == nil {
-		return
+	data := "# SBOM for {{ .Metadata.Component.Name }}" +
+		"| Name | Version | Type |" +
+		"| ---- | ------- | ---- |" +
+		"{{ range .Components }}" +
+		"| {{ .Name }} | {{ .Version }} | {{ .Type }} |" +
+		"{{ end }}"
+	_, err = file.Write([]byte(data))
+	if err != nil {
+		return fmt.Errorf("%w; %w", err, file.Close())
 	}
-	return
+	return file.Close()
 }
