@@ -55,7 +55,7 @@ func (p DefaultTemplateProcessor) Generate(filePath string) (err error) {
 		"{{ end }}"
 	_, err = file.Write([]byte(data))
 	if err != nil {
-		return fmt.Errorf("%w; %w", err, file.Close())
+		return fmt.Errorf("%s; %w", err.Error(), file.Close())
 	}
 	return file.Close()
 }
