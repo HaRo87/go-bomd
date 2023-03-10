@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	gbom "gitlab.com/HaRo87go-bomd/bom"
+	"gitlab.com/HaRo87go-bomd/replicator"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -91,8 +92,17 @@ var validateTemplateCmd = &cobra.Command{
 	Short: "Validate a specified template",
 	Long: `Validate (bomd validate template) will support with checking the integrity
 	of the specified template.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		validateItem(args[0])
+	RunE: func(cmd *cobra.Command, args []string) error {
+		builder := replicator.NewDefaultTemplateProcessorBuilder()
+		processor := builder.GetTemplateProcessor()
+		logrus.Debugf("Trying to parse template: %s", file)
+		err := processor.Validate(replicator.TemplateInfo{InputFilePath: file})
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Info("😎 everything seems to be fine")
+		return nil
 	},
 }
 

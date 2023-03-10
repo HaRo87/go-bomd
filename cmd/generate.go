@@ -3,7 +3,9 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"gitlab.com/HaRo87go-bomd/replicator"
 )
 
 func generateItem(what string) {
@@ -42,8 +44,17 @@ var generateTemplateCmd = &cobra.Command{
 	Use:   "template",
 	Short: "Generate a specified template",
 	Long:  `Generate (bomd generate template) will support with creating the specified template.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		generateItem(args[0])
+	RunE: func(cmd *cobra.Command, args []string) error {
+		builder := replicator.NewDefaultTemplateProcessorBuilder()
+		processor := builder.GetTemplateProcessor()
+		logrus.Debugf("Trying to generate default template: %s", file)
+		err := processor.Generate(file)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Info("😎 everything seems to be fine")
+		return nil
 	},
 }
 

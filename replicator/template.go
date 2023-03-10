@@ -47,11 +47,11 @@ func (p DefaultTemplateProcessor) Generate(filePath string) (err error) {
 	if err != nil {
 		return
 	}
-	data := "# SBOM for {{ .Metadata.Component.Name }}" +
-		"| Name | Version | Type |" +
-		"| ---- | ------- | ---- |" +
-		"{{ range .Components }}" +
-		"| {{ .Name }} | {{ .Version }} | {{ .Type }} |" +
+	data := "# SBOM for {{ .Metadata.Component.Name }}\n" +
+		"| Name | Version | Type |\n" +
+		"| ---- | ------- | ---- |\n" +
+		"{{ range .Components }}\n" +
+		"| {{ .Name }} | {{ .Version }} | {{ .Type }} |\n" +
 		"{{ end }}"
 	_, err = file.Write([]byte(data))
 	if err != nil {
