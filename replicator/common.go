@@ -1,7 +1,7 @@
-package template
+package replicator
 
 import (
-	gTemplate "text/template"
+	"text/template"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/spf13/afero"
@@ -29,6 +29,6 @@ type TemplateProcessor interface {
 // must implement.
 type TemplateProcessorBuilder interface {
 	SetFileSystem(afero.Fs)
-	SetParseFiles(func(filenames ...string) (*gTemplate.Template, error))
+	SetParseFiles(func(filenames ...string) (*template.Template, error))
 	GetTemplateProcessor() DefaultTemplateProcessor
 }

@@ -1,4 +1,4 @@
-package mock
+package mimic
 
 import (
 	"io/fs"

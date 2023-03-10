@@ -1,14 +1,14 @@
-package template
+package replicator
 
 import (
 	"fmt"
 	"testing"
-	gtemplate "text/template"
+	"text/template"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	gmock "gitlab.com/HaRo87go-bomd/mock"
+	gmock "gitlab.com/HaRo87go-bomd/mimic"
 )
 
 func getDefaultTemplateProcessor() DefaultTemplateProcessor {
@@ -32,7 +32,7 @@ func TestValidateParseFilesIssueReturnsError(t *testing.T) {
 	proc := builder.GetTemplateProcessor()
 	_, err := fileMock.Create("some.tmpl")
 	assert.NoError(t, err)
-	templateMock.On("ParseFiles", []string{"some.tmpl"}).Return(new(gtemplate.Template), fmt.Errorf("Some error"))
+	templateMock.On("ParseFiles", []string{"some.tmpl"}).Return(new(template.Template), fmt.Errorf("Some error"))
 	err = proc.Validate(TemplateInfo{InputFilePath: "some.tmpl"})
 	assert.Error(t, err)
 	assert.Equal(t, "Some error", err.Error())
@@ -43,7 +43,7 @@ func TestExecuteParseFilesIssueReturnsError(t *testing.T) {
 	templateMock := new(gmock.MockTemplate)
 	builder.SetParseFiles(templateMock.ParseFiles)
 	proc := builder.GetTemplateProcessor()
-	templateMock.On("ParseFiles", []string{"some.tmpl"}).Return(new(gtemplate.Template), fmt.Errorf("Some error"))
+	templateMock.On("ParseFiles", []string{"some.tmpl"}).Return(new(template.Template), fmt.Errorf("Some error"))
 	err := proc.Execute(TemplateInfo{InputFilePath: "some.tmpl"})
 	assert.Error(t, err)
 	assert.Equal(t, "Some error", err.Error())
@@ -56,7 +56,7 @@ func TestExecuteFsCreateIssueReturnsError(t *testing.T) {
 	builder.SetFileSystem(fileMock)
 	builder.SetParseFiles(templateMock.ParseFiles)
 	proc := builder.GetTemplateProcessor()
-	templateMock.On("ParseFiles", []string{"some.tmpl"}).Return(new(gtemplate.Template), nil)
+	templateMock.On("ParseFiles", []string{"some.tmpl"}).Return(new(template.Template), nil)
 	err := proc.Execute(TemplateInfo{InputFilePath: "some.tmpl", OutputFilePath: "some.md"})
 	assert.Error(t, err)
 	assert.Equal(t, "operation not permitted", err.Error())
@@ -69,7 +69,7 @@ func TestExecuteInvalidTemplateReturnsError(t *testing.T) {
 	builder.SetFileSystem(fileMock)
 	builder.SetParseFiles(templateMock.ParseFiles)
 	proc := builder.GetTemplateProcessor()
-	templateMock.On("ParseFiles", []string{"some.tmpl"}).Return(new(gtemplate.Template), nil)
+	templateMock.On("ParseFiles", []string{"some.tmpl"}).Return(new(template.Template), nil)
 	err := proc.Execute(TemplateInfo{InputFilePath: "some.tmpl", OutputFilePath: "some.md"})
 	assert.Error(t, err)
 	assert.Equal(t, "template: : \"\" is an incomplete or empty template", err.Error())

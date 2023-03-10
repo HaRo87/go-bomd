@@ -1,8 +1,8 @@
-package template
+package replicator
 
 import (
 	"fmt"
-	gTemplate "text/template"
+	"text/template"
 
 	"github.com/spf13/afero"
 )
@@ -12,7 +12,7 @@ import (
 // dependency injection for easier testing.
 type DefaultTemplateProcessor struct {
 	fileSystem afero.Fs
-	parseFiles func(filenames ...string) (*gTemplate.Template, error)
+	parseFiles func(filenames ...string) (*template.Template, error)
 }
 
 // Validate tries to parse the provided template.

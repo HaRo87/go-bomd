@@ -1,7 +1,7 @@
-package template
+package replicator
 
 import (
-	gTemplate "text/template"
+	"text/template"
 
 	"github.com/spf13/afero"
 )
@@ -11,7 +11,7 @@ import (
 // dependency injection for easier testing.
 type DefaultTemplateProcessorBuilder struct {
 	fileSystem afero.Fs
-	parseFiles func(filenames ...string) (*gTemplate.Template, error)
+	parseFiles func(filenames ...string) (*template.Template, error)
 }
 
 // NewDefaultTemplateProcessorBuilder returns a new instance
@@ -28,7 +28,7 @@ func (b *DefaultTemplateProcessorBuilder) SetFileSystem(fileSystem afero.Fs) {
 
 // SetParseFiles allows to define the ParseFiles function which will
 // be used by the template processor for file operations.
-func (b *DefaultTemplateProcessorBuilder) SetParseFiles(parseFiles func(filenames ...string) (*gTemplate.Template, error)) {
+func (b *DefaultTemplateProcessorBuilder) SetParseFiles(parseFiles func(filenames ...string) (*template.Template, error)) {
 	b.parseFiles = parseFiles
 }
 
@@ -39,7 +39,7 @@ func (b *DefaultTemplateProcessorBuilder) GetTemplateProcessor() DefaultTemplate
 		b.fileSystem = afero.NewOsFs()
 	}
 	if b.parseFiles == nil {
-		b.parseFiles = gTemplate.ParseFiles
+		b.parseFiles = template.ParseFiles
 	}
 	return DefaultTemplateProcessor{fileSystem: b.fileSystem, parseFiles: b.parseFiles}
 }
