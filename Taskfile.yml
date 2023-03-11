@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  APP: go-bomd{{exeExt}}
+  APP: bomd{{exeExt}}
 
 tasks:
 
