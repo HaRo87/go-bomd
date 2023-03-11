@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -29,11 +30,11 @@ var generateConfigCmd = &cobra.Command{
 	},
 }
 
-// generateMarkdownCmd represents the generate markdown command
-var generateMarkdownCmd = &cobra.Command{
-	Use:   "markdown",
-	Short: "Generate a specified markdown report",
-	Long:  `Generate (bomd generate markdown) will create the specified markdown report.`,
+// generateResultCmd represents the generate result command
+var generateResultCmd = &cobra.Command{
+	Use:   "result",
+	Short: "Generate a specified result",
+	Long:  `Generate (bomd generate result) will create the specified result based on the provided BOM and template.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		generateItem(args[0])
 	},
@@ -47,8 +48,18 @@ var generateTemplateCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		builder := replicator.NewDefaultTemplateProcessorBuilder()
 		processor := builder.GetTemplateProcessor()
-		logrus.Debugf("Trying to generate default template: %s", file)
-		err := processor.Generate(file)
+		filePath := ""
+		for _, file := range files {
+			if strings.HasSuffix(file, ".tmpl") {
+				filePath = file
+			}
+		}
+		if len(filePath) == 0 {
+			logrus.Error("😱 something went wrong")
+			return fmt.Errorf("you must provide a valid file path for your template ending with .tmpl")
+		}
+		logrus.Debugf("Trying to generate default template: %s", filePath)
+		err := processor.Generate(filePath)
 		if err != nil {
 			logrus.Error("😱 something went wrong")
 			return err
@@ -60,7 +71,7 @@ var generateTemplateCmd = &cobra.Command{
 
 func init() {
 	generateCmd.AddCommand(generateConfigCmd)
-	generateCmd.AddCommand(generateMarkdownCmd)
+	generateCmd.AddCommand(generateResultCmd)
 	generateCmd.AddCommand(generateTemplateCmd)
 	rootCmd.AddCommand(generateCmd)
 

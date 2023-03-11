@@ -8,7 +8,7 @@ import (
 )
 
 var configFile string
-var file string
+var files []string
 var ignoreErrors bool
 var logLevel int
 
@@ -34,7 +34,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initLogger)
 	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config.yml", "config file (default ./config.yml)")
-	rootCmd.PersistentFlags().StringVarP(&file, "file", "f", "", "the file on which an operation should be performed")
+	rootCmd.PersistentFlags().StringArrayVarP(&files, "file", "f", []string{}, "the file(s) on which an operation should be performed")
 	rootCmd.PersistentFlags().BoolVar(&ignoreErrors, "ignore-errors", false, "do not error out")
 	rootCmd.PersistentFlags().CountVarP(&logLevel, "verbose", "v", "logger verbosity")
 }

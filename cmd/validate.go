@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -62,13 +63,23 @@ var validateBomCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		builder := gbom.NewDefaultBOMProcessorBuilder()
 		processor := builder.GetBOMProcessor()
-		logrus.Debugf("Trying to read BOM: %s", file)
-		bom, err := processor.GetBOM(file)
+		filePath := ""
+		for _, file := range files {
+			if strings.HasSuffix(file, ".json") {
+				filePath = file
+			}
+		}
+		if len(filePath) == 0 {
+			logrus.Error("😱 something went wrong")
+			return fmt.Errorf("you must provide a valid file path for your BOM ending with .json")
+		}
+		logrus.Debugf("Trying to read BOM: %s", filePath)
+		bom, err := processor.GetBOM(filePath)
 		if err != nil {
 			logrus.Error("😱 something went wrong")
 			return err
 		}
-		logrus.Infof("Validating BOM: %s", file)
+		logrus.Infof("Validating BOM: %s", filePath)
 		err = validateBOM(&bom, licenseCheck, processor)
 		if err != nil {
 			logrus.Error("😱 something went wrong")
@@ -95,8 +106,18 @@ var validateTemplateCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		builder := replicator.NewDefaultTemplateProcessorBuilder()
 		processor := builder.GetTemplateProcessor()
-		logrus.Debugf("Trying to parse template: %s", file)
-		err := processor.Validate(replicator.TemplateInfo{InputFilePath: file})
+		filePath := ""
+		for _, file := range files {
+			if strings.HasSuffix(file, ".tmpl") {
+				filePath = file
+			}
+		}
+		if len(filePath) == 0 {
+			logrus.Error("😱 something went wrong")
+			return fmt.Errorf("you must provide a valid file path for your template ending with .tmpl")
+		}
+		logrus.Debugf("Trying to parse template: %s", filePath)
+		err := processor.Validate(replicator.TemplateInfo{InputFilePath: filePath})
 		if err != nil {
 			logrus.Error("😱 something went wrong")
 			return err
