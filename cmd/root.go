@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -50,4 +52,17 @@ func initLogger() {
 	default:
 		logrus.SetLevel(logrus.DebugLevel)
 	}
+}
+
+func getFilePath(files []string, suffix string) (filePath string, err error) {
+	filePath = ""
+	for _, file := range files {
+		if strings.HasSuffix(file, suffix) {
+			filePath = file
+		}
+	}
+	if len(filePath) == 0 {
+		err = fmt.Errorf("you must provide a valid file path for your template ending with .tmpl")
+	}
+	return
 }

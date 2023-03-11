@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	gbom "gitlab.com/HaRo87go-bomd/bom"
 	"gitlab.com/HaRo87go-bomd/replicator"
 )
 
@@ -35,8 +35,44 @@ var generateResultCmd = &cobra.Command{
 	Use:   "result",
 	Short: "Generate a specified result",
 	Long:  `Generate (bomd generate result) will create the specified result based on the provided BOM and template.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		generateItem(args[0])
+	RunE: func(cmd *cobra.Command, args []string) error {
+		bomFilePath, err := getFilePath(files, ".json")
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		templateFilePath, err := getFilePath(files, ".tmpl")
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		templateBuilder := replicator.NewDefaultTemplateProcessorBuilder()
+		templateProcessor := templateBuilder.GetTemplateProcessor()
+		bomBuilder := gbom.NewDefaultBOMProcessorBuilder()
+		bomProcessor := bomBuilder.GetBOMProcessor()
+		bom, err := bomProcessor.GetBOM(bomFilePath)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		filePath := ""
+		for _, file := range files {
+			if file != bomFilePath && file != templateFilePath {
+				filePath = file
+			}
+		}
+		logrus.Debugf("Trying to generate result: %s", filePath)
+		err = templateProcessor.Execute(replicator.TemplateInfo{
+			InputFilePath:  templateFilePath,
+			OutputFilePath: filePath,
+			BOM:            &bom},
+		)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Info("😎 everything seems to be fine")
+		return nil
 	},
 }
 
@@ -48,18 +84,13 @@ var generateTemplateCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		builder := replicator.NewDefaultTemplateProcessorBuilder()
 		processor := builder.GetTemplateProcessor()
-		filePath := ""
-		for _, file := range files {
-			if strings.HasSuffix(file, ".tmpl") {
-				filePath = file
-			}
-		}
-		if len(filePath) == 0 {
+		filePath, err := getFilePath(files, ".tmpl")
+		if err != nil {
 			logrus.Error("😱 something went wrong")
-			return fmt.Errorf("you must provide a valid file path for your template ending with .tmpl")
+			return err
 		}
 		logrus.Debugf("Trying to generate default template: %s", filePath)
-		err := processor.Generate(filePath)
+		err = processor.Generate(filePath)
 		if err != nil {
 			logrus.Error("😱 something went wrong")
 			return err
