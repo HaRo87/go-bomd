@@ -62,7 +62,7 @@ func getFilePath(files []string, suffix string) (filePath string, err error) {
 		}
 	}
 	if len(filePath) == 0 {
-		err = fmt.Errorf("you must provide a valid file path for your template ending with .tmpl")
+		err = fmt.Errorf("you must provide a valid file path for your template ending with %s", suffix)
 	}
 	return
 }
