@@ -1,0 +1,5 @@
+# SBOM for {{ .Metadata.Component.Name }}
+| Name | Version | Type |
+| ---- | ------- | ---- |
+{{ range .Components }}| {{ .Name }} | {{ .Version }} | {{ .Type }} |
+{{ end }}

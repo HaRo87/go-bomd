@@ -1,14 +1,16 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var configFile string
-var file string
+var files []string
 var ignoreErrors bool
 var logLevel int
 
@@ -34,7 +36,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initLogger)
 	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "config.yml", "config file (default ./config.yml)")
-	rootCmd.PersistentFlags().StringVarP(&file, "file", "f", "", "the file on which an operation should be performed")
+	rootCmd.PersistentFlags().StringArrayVarP(&files, "file", "f", []string{}, "the file(s) on which an operation should be performed")
 	rootCmd.PersistentFlags().BoolVar(&ignoreErrors, "ignore-errors", false, "do not error out")
 	rootCmd.PersistentFlags().CountVarP(&logLevel, "verbose", "v", "logger verbosity")
 }
@@ -50,4 +52,17 @@ func initLogger() {
 	default:
 		logrus.SetLevel(logrus.DebugLevel)
 	}
+}
+
+func getFilePath(files []string, suffix string) (filePath string, err error) {
+	filePath = ""
+	for _, file := range files {
+		if strings.HasSuffix(file, suffix) {
+			filePath = file
+		}
+	}
+	if len(filePath) == 0 {
+		err = fmt.Errorf("you must provide a valid file path for your template ending with %s", suffix)
+	}
+	return
 }

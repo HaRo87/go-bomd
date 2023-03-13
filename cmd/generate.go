@@ -3,7 +3,10 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	gbom "gitlab.com/HaRo87go-bomd/bom"
+	"gitlab.com/HaRo87go-bomd/replicator"
 )
 
 func generateItem(what string) {
@@ -27,13 +30,49 @@ var generateConfigCmd = &cobra.Command{
 	},
 }
 
-// generateMarkdownCmd represents the generate markdown command
-var generateMarkdownCmd = &cobra.Command{
-	Use:   "markdown",
-	Short: "Generate a specified markdown report",
-	Long:  `Generate (bomd generate markdown) will create the specified markdown report.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		generateItem(args[0])
+// generateResultCmd represents the generate result command
+var generateResultCmd = &cobra.Command{
+	Use:   "result",
+	Short: "Generate a specified result",
+	Long:  `Generate (bomd generate result) will create the specified result based on the provided BOM and template.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		bomFilePath, err := getFilePath(files, ".json")
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		templateFilePath, err := getFilePath(files, ".tmpl")
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		templateBuilder := replicator.NewDefaultTemplateProcessorBuilder()
+		templateProcessor := templateBuilder.GetTemplateProcessor()
+		bomBuilder := gbom.NewDefaultBOMProcessorBuilder()
+		bomProcessor := bomBuilder.GetBOMProcessor()
+		bom, err := bomProcessor.GetBOM(bomFilePath)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		filePath := ""
+		for _, file := range files {
+			if file != bomFilePath && file != templateFilePath {
+				filePath = file
+			}
+		}
+		logrus.Debugf("Trying to generate result: %s", filePath)
+		err = templateProcessor.Execute(replicator.TemplateInfo{
+			InputFilePath:  templateFilePath,
+			OutputFilePath: filePath,
+			BOM:            &bom},
+		)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Info("😎 everything seems to be fine")
+		return nil
 	},
 }
 
@@ -42,24 +81,28 @@ var generateTemplateCmd = &cobra.Command{
 	Use:   "template",
 	Short: "Generate a specified template",
 	Long:  `Generate (bomd generate template) will support with creating the specified template.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		generateItem(args[0])
+	RunE: func(cmd *cobra.Command, args []string) error {
+		builder := replicator.NewDefaultTemplateProcessorBuilder()
+		processor := builder.GetTemplateProcessor()
+		filePath, err := getFilePath(files, ".tmpl")
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Debugf("Trying to generate default template: %s", filePath)
+		err = processor.Generate(filePath)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Info("😎 everything seems to be fine")
+		return nil
 	},
 }
 
 func init() {
 	generateCmd.AddCommand(generateConfigCmd)
-	generateCmd.AddCommand(generateMarkdownCmd)
+	generateCmd.AddCommand(generateResultCmd)
 	generateCmd.AddCommand(generateTemplateCmd)
 	rootCmd.AddCommand(generateCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// generateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// generateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

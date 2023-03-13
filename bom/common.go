@@ -1,9 +1,8 @@
 package bom
 
 import (
-	"io/fs"
-
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/spf13/afero"
 )
 
 // BOMProcessor represents the interface and thereby all the
@@ -20,8 +19,7 @@ type BOMProcessor interface {
 // https://refactoring.guru/design-patterns/builder
 // must implement.
 type BOMProcessorBuilder interface {
-	SetStat(func(name string) (fs.FileInfo, error))
-	SetReadFile(func(filename string) ([]byte, error))
+	SetFileSystem(afero.Fs)
 	GetBOMProcessor() DefaultBOMProcessor
 }
 

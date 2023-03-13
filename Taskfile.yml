@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  APP: go-bomd{{exeExt}}
+  APP: bomd{{exeExt}}
 
 tasks:
 
@@ -20,6 +20,11 @@ tasks:
     cmds:
       - go fmt $(go list ./... | grep -v /vendor/)
       - go vet $(go list ./... | grep -v /vendor/)
+
+  lint:
+    desc: Lint the code
+    cmds:
+      - golangci-lint run ./...
 
   security:
     desc: Run gosec for project

@@ -3,18 +3,17 @@ package bom
 import (
 	"bytes"
 	"fmt"
-	"io/fs"
 	"strings"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/spf13/afero"
 )
 
-// DefaultBOMProcessor holds the functions
+// DefaultBOMProcessor holds the elements
 // which need to be defined dynamically to enable
 // dependency injection for easier testing.
 type DefaultBOMProcessor struct {
-	stat     func(name string) (fs.FileInfo, error)
-	readFile func(filename string) ([]byte, error)
+	fileSystem afero.Fs
 }
 
 // bomComponentCheck represents a handler implementing
@@ -103,11 +102,15 @@ func (p DefaultBOMProcessor) GetBOM(filePath string) (bom cdx.BOM, err error) {
 		err = fmt.Errorf("Only JSON file format supported")
 		return
 	}
-	_, err = p.stat(filePath)
+	_, err = p.fileSystem.Stat(filePath)
 	if err != nil {
 		return
 	}
-	content, err := p.readFile(filePath)
+	file, err := p.fileSystem.Open(filePath)
+	if err != nil {
+		return
+	}
+	content, err := afero.ReadAll(file)
 	if err != nil {
 		return
 	}

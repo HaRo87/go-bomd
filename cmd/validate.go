@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	gbom "gitlab.com/HaRo87go-bomd/bom"
+	"gitlab.com/HaRo87go-bomd/replicator"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -61,13 +62,18 @@ var validateBomCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		builder := gbom.NewDefaultBOMProcessorBuilder()
 		processor := builder.GetBOMProcessor()
-		logrus.Debugf("Trying to read BOM: %s", file)
-		bom, err := processor.GetBOM(file)
+		filePath, err := getFilePath(files, ".json")
 		if err != nil {
 			logrus.Error("😱 something went wrong")
 			return err
 		}
-		logrus.Infof("Validating BOM: %s", file)
+		logrus.Debugf("Trying to read BOM: %s", filePath)
+		bom, err := processor.GetBOM(filePath)
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Infof("Validating BOM: %s", filePath)
 		err = validateBOM(&bom, licenseCheck, processor)
 		if err != nil {
 			logrus.Error("😱 something went wrong")
@@ -91,8 +97,22 @@ var validateTemplateCmd = &cobra.Command{
 	Short: "Validate a specified template",
 	Long: `Validate (bomd validate template) will support with checking the integrity
 	of the specified template.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		validateItem(args[0])
+	RunE: func(cmd *cobra.Command, args []string) error {
+		builder := replicator.NewDefaultTemplateProcessorBuilder()
+		processor := builder.GetTemplateProcessor()
+		filePath, err := getFilePath(files, ".tmpl")
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Debugf("Trying to parse template: %s", filePath)
+		err = processor.Validate(replicator.TemplateInfo{InputFilePath: filePath})
+		if err != nil {
+			logrus.Error("😱 something went wrong")
+			return err
+		}
+		logrus.Info("😎 everything seems to be fine")
+		return nil
 	},
 }
 

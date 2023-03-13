@@ -27,7 +27,7 @@ task: Available tasks for this project:
 ```
 
 After building the CLI via `task build` you should be able to
-study the available commands via `./build/go-bomd --help` which
+study the available commands via `./build/bomd --help` which
 should produce an output similar to:
 
 ```bash
@@ -45,11 +45,11 @@ Available Commands:
   validate    Validate a specified item
 
 Flags:
-  -c, --config string   config file (default ./config.yml) (default "config.yml")
-  -f, --file string     the file on which an operation should be performed
-  -h, --help            help for bomd
-      --ignore-errors   do not error out
-  -v, --verbose count   logger verbosity
+  -c, --config string      config file (default ./config.yml) (default "config.yml")
+  -f, --file stringArray   the file(s) on which an operation should be performed
+  -h, --help               help for bomd
+      --ignore-errors      do not error out
+  -v, --verbose count      logger verbosity
 
 Use "bomd [command] --help" for more information about a command.
 ```
