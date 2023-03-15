@@ -6,8 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	gbom "gitlab.com/HaRo87go-bomd/bom"
-	"gitlab.com/HaRo87go-bomd/replicator"
+	gbom "github.com/HaRo87/go-bomd/bom"
+	"github.com/HaRo87/go-bomd/replicator"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )

@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
+	gbom "github.com/HaRo87/go-bomd/bom"
+	"github.com/HaRo87/go-bomd/replicator"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	gbom "gitlab.com/HaRo87go-bomd/bom"
-	"gitlab.com/HaRo87go-bomd/replicator"
 )
 
 func generateItem(what string) {

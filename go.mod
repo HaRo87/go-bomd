@@ -1,4 +1,4 @@
-module gitlab.com/HaRo87go-bomd
+module github.com/HaRo87/go-bomd
 
 go 1.19
 

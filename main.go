@@ -1,6 +1,6 @@
 package main
 
-import "gitlab.com/HaRo87go-bomd/cmd"
+import "github.com/HaRo87/go-bomd/cmd"
 
 func main() {
 	cmd.Execute()

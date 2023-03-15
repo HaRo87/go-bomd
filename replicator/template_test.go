@@ -6,9 +6,9 @@ import (
 	"text/template"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	gmock "github.com/HaRo87/go-bomd/mimic"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	gmock "gitlab.com/HaRo87go-bomd/mimic"
 )
 
 func getDefaultTemplateProcessor() DefaultTemplateProcessor {
