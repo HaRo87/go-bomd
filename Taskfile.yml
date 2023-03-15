@@ -5,6 +5,34 @@ vars:
 
 tasks:
 
+  install-tools:
+    desc: installing required tools
+    vars:
+      TOOLS:
+        sh: cat tools.txt
+    cmds:
+      - |
+        {{range $i, $tool := .TOOLS | splitLines -}}
+        go install {{$tool}}
+        {{end}}
+  
+  download-dependencies:
+    desc: downloading all required Go dependencies
+    cmds:
+      - go mod download
+
+  setup:
+    desc: installing all required project dependencies
+    cmds:
+      - task: install-tools
+      - task: download-dependencies
+
+  check-setup:
+    desc: check system dependencies
+    cmds:
+      - which go || (echo "FAILURE, install Go please" >&2; exit 1)
+      - which golangci-lint || (echo "FAILURE, install golangci-lint please" >&2; exit 1)
+
   clean:
     desc: Clean the project
     cmds:
@@ -14,12 +42,18 @@ tasks:
     desc: Test the project
     cmds:
       - go test -cover ./...
+  
+  coverage:
+    desc: Generate coverage report
+    cmds:
+      - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
   format:
     desc: Format the project
     cmds:
       - go fmt $(go list ./... | grep -v /vendor/)
       - go vet $(go list ./... | grep -v /vendor/)
+      - find . -type f -name "*.go" -execdir goimports -l -w {} +
 
   lint:
     desc: Lint the code
@@ -37,3 +71,25 @@ tasks:
     cmds:
       - mkdir ./build
       - CGO_ENABLED=0 GOARCH=amd64 go build -ldflags="-w -s" -o ./build/{{.APP}} .
+
+  build-docs:
+    desc: building the MkDocs documentation
+    cmds:
+      - mkdocs build
+
+  serve-docs:
+    desc: building the MkDocs documentation
+    cmds:
+      - mkdocs serve
+
+  deploy-docs:
+    desc: deploying the documentation to GitHub Pages
+    deps: [build-docs]
+    cmds:
+      - mike deploy --push --update-aliases --rebase {{ .CLI_ARGS }}
+
+  deploy-docs-alias:
+    desc: updating the latest version of the documentation on GitHub Pages
+    deps: [build-docs]
+    cmds:
+      - $RUN_CMD mike set-default --push --rebase {{ .CLI_ARGS }}

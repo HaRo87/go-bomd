@@ -1,0 +1,53 @@
+name: deploy
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Dependencies
+      run: sudo apt-get update -yqq && sudo apt-get install -yqq curl git
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Git Setup
+      run: |
+        git config user.email "$GITHUB_ACTOR@fam-hansel.de"
+        git config user.name "$GITHUB_ACTOR"
+    - name: Install Task
+      uses: arduino/setup-task@v1
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        activate-environment: go-bomd
+        environment-file: environment.yml
+        python-version: 3.9
+        auto-activate-base: false
+    - name: Coverage
+      run: task coverage
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage.txt
+        flags: unittests
+        name: codecov-umbrella
+        env_vars: OS,GOLANG
+        fail_ci_if_error: true
+    - name: Deploy docs
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        GIT_TAG=$(git describe --abbrev=0 --tags) && task deploy-docs -- $GIT_TAG main
+        task deploy-docs-alias -- main

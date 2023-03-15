@@ -1,0 +1,39 @@
+site_name: go-bomd Documentation
+site_description: Software Bill Of Materials Conversion
+site_url: https://haro87.github.io/go-bomd/
+repo_url: https://github.com/HaRo87/go-bomd
+repo_name: HaRo87/go-bomd
+site_author: Robert Hansel
+copyright: Robert Hansel 2023
+
+plugins:
+  - search
+  - mike:
+      version_selector: true
+
+nav:
+  - Home:
+    - Overview: index.md
+    - Installation: install.md
+    - Generation: generate.md
+    - License: license.md
+    - 3rd Party Software: 3rd-party.md
+  - Contributing: contributing.md
+  - Author's Website: https://github.com/HaRo87
+
+theme:
+  name: material
+  font: false
+  palette:
+    scheme: default
+    primary: blue
+
+markdown_extensions:
+  - pymdownx.snippets:
+      check_paths: true
+  - toc:
+      permalink: true
+
+extra:
+  version:
+    provider: mike

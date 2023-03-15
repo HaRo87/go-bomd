@@ -1,0 +1,11 @@
+# conda env update --file environment.yml
+name: go-bomd
+channels:
+  - defaults
+dependencies:
+  - pip=23.0.1=py39hca03da5_0
+  - python=3.9.16=hc0d8a6c_2
+  - pip:
+    - mike==1.1.2
+    - mkdocs==1.4.2
+    - mkdocs-material==9.1.3

@@ -1,3 +1,8 @@
+[![codecov](https://codecov.io/gh/HaRo87/go-bomd/branch/main/graph/badge.svg?token=IGSSXIRZV9)](https://codecov.io/gh/HaRo87/go-bomd)
+[![Test](https://github.com/HaRo87/go-bomd/actions/workflows/quality.yml/badge.svg)](https://github.com/HaRo87/go-bomd/actions/workflows/quality.yml)
+[![documentation](https://img.shields.io/badge/docs-mkdocs-blue.svg?style=flat)](https://HaRo87.github.io/go-bomd/)
+<img src="https://img.shields.io/badge/Go-1.19+-00ADD8?style=for-the-badge&logo=go" alt="go version" />&nbsp;<img src="https://img.shields.io/badge/license-mit-red?style=for-the-badge&logo=none" alt="license" />
+
 # Introduction
 
 `go-bomd` is a CLI which can be used to transform software dependency
