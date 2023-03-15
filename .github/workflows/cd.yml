@@ -24,7 +24,7 @@ jobs:
         git config user.email "$GITHUB_ACTOR@fam-hansel.de"
         git config user.name "$GITHUB_ACTOR"
     - name: Install Task
-        uses: arduino/setup-task@v1
+      uses: arduino/setup-task@v1
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
