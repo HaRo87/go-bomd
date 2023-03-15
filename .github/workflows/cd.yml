@@ -30,13 +30,13 @@ jobs:
       with:
         python-version: 3.9
     - uses: conda-incubator/setup-miniconda@v2
-        with:
-          activate-environment: go-bomd
-          environment-file: environment.yml
-          python-version: 3.9
-          auto-activate-base: false
+      with:
+        activate-environment: go-bomd
+        environment-file: environment.yml
+        python-version: 3.9
+        auto-activate-base: false
     - name: Coverage
-        run: task coverage
+      run: task coverage
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
