@@ -42,6 +42,11 @@ tasks:
     desc: Test the project
     cmds:
       - go test -cover ./...
+  
+  coverage:
+    desc: Generate coverage report
+    cmds:
+      - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
   format:
     desc: Format the project
@@ -66,3 +71,25 @@ tasks:
     cmds:
       - mkdir ./build
       - CGO_ENABLED=0 GOARCH=amd64 go build -ldflags="-w -s" -o ./build/{{.APP}} .
+
+  build-docs:
+    desc: building the MkDocs documentation
+    cmds:
+      - mkdocs build
+
+  serve-docs:
+    desc: building the MkDocs documentation
+    cmds:
+      - mkdocs serve
+
+  deploy-docs:
+    desc: deploying the documentation to GitHub Pages
+    deps: [build-docs]
+    cmds:
+      - mike deploy --push --update-aliases --rebase {{ .CLI_ARGS }}
+
+  deploy-docs-alias:
+    desc: updating the latest version of the documentation on GitHub Pages
+    deps: [build-docs]
+    cmds:
+      - $RUN_CMD mike set-default --push --rebase {{ .CLI_ARGS }}

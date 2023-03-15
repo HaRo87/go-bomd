@@ -31,6 +31,16 @@ jobs:
         uses: securego/gosec@master
         with:
           args: '-fmt=text ./...'
+      - name: Coverage
+        run: task coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.txt
+          flags: unittests
+          name: codecov-umbrella
+          env_vars: OS,GOLANG
+          fail_ci_if_error: true
   matrix-test:
     if: ${{ startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/heads/hotfix')}}
     name: Test
