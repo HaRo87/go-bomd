@@ -5,6 +5,34 @@ vars:
 
 tasks:
 
+  install-tools:
+    desc: installing required tools
+    vars:
+      TOOLS:
+        sh: cat tools.txt
+    cmds:
+      - |
+        {{range $i, $tool := .TOOLS | splitLines -}}
+        go install {{$tool}}
+        {{end}}
+  
+  download-dependencies:
+    desc: downloading all required Go dependencies
+    cmds:
+      - go mod download
+
+  setup:
+    desc: installing all required project dependencies
+    cmds:
+      - task: install-tools
+      - task: download-dependencies
+
+  check-setup:
+    desc: check system dependencies
+    cmds:
+      - which go || (echo "FAILURE, install Go please" >&2; exit 1)
+      - which golangci-lint || (echo "FAILURE, install golangci-lint please" >&2; exit 1)
+
   clean:
     desc: Clean the project
     cmds:
@@ -20,6 +48,7 @@ tasks:
     cmds:
       - go fmt $(go list ./... | grep -v /vendor/)
       - go vet $(go list ./... | grep -v /vendor/)
+      - find . -type f -name "*.go" -execdir goimports -l -w {} +
 
   lint:
     desc: Lint the code
