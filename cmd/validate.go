@@ -120,7 +120,7 @@ func init() {
 	validateBomCmd.Flags().BoolVarP(&licenseCheck, "licenseCheck", "l", false, "check if license info is present (default false)")
 	validateBomCmd.Flags().BoolVar(&listMissingLicenses, "listMissing", false, "list all components missing license info (default false)")
 	validateCmd.AddCommand(validateBomCmd)
-	validateCmd.AddCommand(validateConfigCmd)
+	//validateCmd.AddCommand(validateConfigCmd)
 	validateCmd.AddCommand(validateTemplateCmd)
 	rootCmd.AddCommand(validateCmd)
 }

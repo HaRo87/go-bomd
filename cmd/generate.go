@@ -101,7 +101,7 @@ var generateTemplateCmd = &cobra.Command{
 }
 
 func init() {
-	generateCmd.AddCommand(generateConfigCmd)
+	//generateCmd.AddCommand(generateConfigCmd)
 	generateCmd.AddCommand(generateResultCmd)
 	generateCmd.AddCommand(generateTemplateCmd)
 	rootCmd.AddCommand(generateCmd)
