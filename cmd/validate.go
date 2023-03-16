@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -14,10 +12,6 @@ import (
 
 var licenseCheck bool
 var listMissingLicenses bool
-
-func validateItem(config string) {
-	fmt.Println("Validating ...")
-}
 
 func validateBOM(bom *cdx.BOM, validateLicenses bool, bomProc gbom.BOMProcessor) (err error) {
 	err = bomProc.ValidateBOM(bom)
@@ -43,15 +37,15 @@ var validateCmd = &cobra.Command{
 }
 
 // validateConfigCmd represents the validate config command
-var validateConfigCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Validate a specified config",
-	Long: `Validate (bomd validate config) will support with checking the integrity
-	of the specified config.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		validateItem(args[0])
-	},
-}
+// var validateConfigCmd = &cobra.Command{
+// 	Use:   "config",
+// 	Short: "Validate a specified config",
+// 	Long: `Validate (bomd validate config) will support with checking the integrity
+// 	of the specified config.`,
+// 	Run: func(cmd *cobra.Command, args []string) {
+
+// 	},
+// }
 
 // validateBomCmd represents the validate BOM command
 var validateBomCmd = &cobra.Command{
@@ -120,7 +114,7 @@ func init() {
 	validateBomCmd.Flags().BoolVarP(&licenseCheck, "licenseCheck", "l", false, "check if license info is present (default false)")
 	validateBomCmd.Flags().BoolVar(&listMissingLicenses, "listMissing", false, "list all components missing license info (default false)")
 	validateCmd.AddCommand(validateBomCmd)
-	validateCmd.AddCommand(validateConfigCmd)
+	//validateCmd.AddCommand(validateConfigCmd)
 	validateCmd.AddCommand(validateTemplateCmd)
 	rootCmd.AddCommand(validateCmd)
 }
