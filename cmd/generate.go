@@ -1,17 +1,11 @@
 package cmd
 
 import (
-	"fmt"
-
 	gbom "github.com/HaRo87/go-bomd/bom"
 	"github.com/HaRo87/go-bomd/replicator"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
-
-func generateItem(what string) {
-	fmt.Println("Generating ...")
-}
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -21,14 +15,14 @@ var generateCmd = &cobra.Command{
 }
 
 // generateConfigCmd represents the generate config command
-var generateConfigCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Generate a specified config",
-	Long:  `Generate (bomd generate config) will support with creating the specified config.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		generateItem(args[0])
-	},
-}
+// var generateConfigCmd = &cobra.Command{
+// 	Use:   "config",
+// 	Short: "Generate a specified config",
+// 	Long:  `Generate (bomd generate config) will support with creating the specified config.`,
+// 	Run: func(cmd *cobra.Command, args []string) {
+
+// 	},
+// }
 
 // generateResultCmd represents the generate result command
 var generateResultCmd = &cobra.Command{
